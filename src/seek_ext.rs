@@ -3,7 +3,6 @@
 
 use std::io::{Result, Seek, SeekFrom};
 
-
 /// Adds convenience methods to all types that implement `io::Seek`.
 ///
 /// This is an extension trait that has a blanket impl which implements this
@@ -80,51 +79,51 @@ pub trait SeekExt: Seek {
 
 impl<T: Seek> SeekExt for T {}
 
-
 #[cfg(test)]
 mod tests {
-    use std::io::{Cursor, Seek, SeekFrom};
     use super::SeekExt;
+    use std::io::{self, Cursor, Seek, SeekFrom};
 
     #[test]
-    fn stream_len() {
+    fn stream_len() -> io::Result<()> {
         let mut c = Cursor::new(vec![0; 15]);
-        assert_eq!(c.stream_len().unwrap(), 15);
+        assert_eq!(c.stream_len()?, 15);
 
-        c.seek(SeekFrom::End(0)).unwrap();
-        let old_pos = c.stream_position().unwrap();
-        assert_eq!(c.stream_len().unwrap(), 15);
-        assert_eq!(c.stream_position().unwrap(), old_pos);
+        c.seek(SeekFrom::End(0))?;
+        let old_pos = c.stream_position()?;
+        assert_eq!(c.stream_len()?, 15);
+        assert_eq!(c.stream_position()?, old_pos);
 
-        c.seek(SeekFrom::Start(7)).unwrap();
-        c.seek(SeekFrom::Current(2)).unwrap();
-        let old_pos = c.stream_position().unwrap();
-        assert_eq!(c.stream_len().unwrap(), 15);
-        assert_eq!(c.stream_position().unwrap(), old_pos);
+        c.seek(SeekFrom::Start(7))?;
+        c.seek(SeekFrom::Current(2))?;
+        let old_pos = c.stream_position()?;
+        assert_eq!(c.stream_len()?, 15);
+        assert_eq!(c.stream_position()?, old_pos);
+        Ok(())
     }
 
     #[test]
-    fn stream_position() {
+    fn stream_position() -> io::Result<()> {
         // All `asserts` are duplicated here to make sure the method does not
         // change anything about the seek state.
         let mut c = Cursor::new(vec![0; 15]);
-        assert_eq!(c.stream_position().unwrap(), 0);
-        assert_eq!(c.stream_position().unwrap(), 0);
+        assert_eq!(c.stream_position()?, 0);
+        assert_eq!(c.stream_position()?, 0);
 
-        c.seek(SeekFrom::End(0)).unwrap();
-        assert_eq!(c.stream_position().unwrap(), 15);
-        assert_eq!(c.stream_position().unwrap(), 15);
+        c.seek(SeekFrom::End(0))?;
+        assert_eq!(c.stream_position()?, 15);
+        assert_eq!(c.stream_position()?, 15);
 
+        c.seek(SeekFrom::Start(7))?;
+        c.seek(SeekFrom::Current(2))?;
+        assert_eq!(c.stream_position()?, 9);
+        assert_eq!(c.stream_position()?, 9);
 
-        c.seek(SeekFrom::Start(7)).unwrap();
-        c.seek(SeekFrom::Current(2)).unwrap();
-        assert_eq!(c.stream_position().unwrap(), 9);
-        assert_eq!(c.stream_position().unwrap(), 9);
-
-        c.seek(SeekFrom::End(-3)).unwrap();
-        c.seek(SeekFrom::Current(1)).unwrap();
-        c.seek(SeekFrom::Current(-5)).unwrap();
-        assert_eq!(c.stream_position().unwrap(), 8);
-        assert_eq!(c.stream_position().unwrap(), 8);
+        c.seek(SeekFrom::End(-3))?;
+        c.seek(SeekFrom::Current(1))?;
+        c.seek(SeekFrom::Current(-5))?;
+        assert_eq!(c.stream_position()?, 8);
+        assert_eq!(c.stream_position()?, 8);
+        Ok(())
     }
 }
