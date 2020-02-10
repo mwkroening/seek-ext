@@ -18,3 +18,8 @@ readme = "README.md"
 travis-ci = { branch = "master", repository = "LukasKalbertodt/seek-ext" }
 
 [dependencies]
+futures = { version = "0.3", optional = true }
+
+[features]
+std = []
+async = ["futures"]
